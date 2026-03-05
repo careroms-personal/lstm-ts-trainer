@@ -1,0 +1,25 @@
+prediction_type: "" # depletion | incremental
+model_name: ""
+model_export_dir: ""
+
+#config that not matching type are not being used in this training
+# "*" for all file in directory
+dataset_config:
+  dataset_dir: ""
+  dataset_files:
+    - "*" 
+  timestamp_col: "timestamp"
+  value_col: "value"
+
+prediction_boundary:
+  floor_value: 0 # bottom limit
+  ceiling_value: 0 # top limit
+
+#Optional
+transfer_training:
+  base_dir: ""
+  model_list:
+    - "*"
+
+#Future improvement
+#fine_tune:
