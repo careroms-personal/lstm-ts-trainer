@@ -6,6 +6,7 @@ from pydantic import ValidationError
 from models.config_models import LSTMTsTrainingConfig
 
 from .normalizer_executor import Normalizer
+from .training_executor import TrainingExecutor
 
 class Processor:
   def __init__(self, config_path: str):
@@ -31,4 +32,7 @@ class Processor:
 
   def execute(self):
     self.normalizer = Normalizer(self.lstm_ts_training_config)
-    self.normalizer.executor()
+    self.normalized_data = self.normalizer.executor()
+
+    self.training_executor = TrainingExecutor(self.lstm_ts_training_config)
+    self.training_executor.execute()

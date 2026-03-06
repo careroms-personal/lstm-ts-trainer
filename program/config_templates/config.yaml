@@ -11,9 +11,11 @@ dataset_config:
   timestamp_col: "timestamp"
   value_col: "value"
 
-prediction_boundary:
-  floor_value: 0 # bottom limit
-  ceiling_value: 0 # top limit
+training_config:
+  windows_size: 24
+  prediction_boundary:
+    floor_value: 0 # bottom limit
+    ceiling_value: 0 # top limit
 
 #Optional
 transfer_training:

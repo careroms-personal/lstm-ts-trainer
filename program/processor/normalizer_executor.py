@@ -1,6 +1,6 @@
 import pandas as pd
 
-from models.config_models import LSTMTsTrainingConfig, PredictionType
+from models.config_models import LSTMTsTrainingConfig
 
 from pathlib import Path
 
@@ -8,7 +8,7 @@ class Normalizer:
   def __init__(self, training_config: LSTMTsTrainingConfig):
     self.training_config = training_config
 
-  def _normalize_data(self) -> list[str]:
+  def _normalize_data(self) -> pd.DataFrame:
     if self.training_config.dataset_config.dataset_files[0] == "*":
       file_list = list(Path(self.training_config.dataset_config.dataset_dir).glob("*.csv"))
     else:
@@ -34,8 +34,9 @@ class Normalizer:
     combined_df = pd.concat(dfs, ignore_index=True)
     combined_df = combined_df.sort_values(timestamp_col).reset_index(drop=True)
 
-    combined_df[value_col] = combined_df[value_col] / self.training_config.prediction_boundary.ceiling_value
-    print(combined_df)
+    combined_df[value_col] = combined_df[value_col] / self.training_config.training_config.prediction_boundary.ceiling_value
     
-  def executor(self):
-    self._normalize_data()
+    return combined_df
+    
+  def executor(self) -> pd.DataFrame:
+    return self._normalize_data()
