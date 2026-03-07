@@ -11,11 +11,16 @@ dataset_config:
   timestamp_col: "timestamp"
   value_col: "value"
 
-training_config:
+prediction_boundary:
+  floor_value: 0 # bottom limit
+  ceiling_value: 0 # top limit
+
+lstm_config:
   windows_size: 24
-  prediction_boundary:
-    floor_value: 0 # bottom limit
-    ceiling_value: 0 # top limit
+  units: [64, 32]
+  dropout: 0.2
+  epochs: 50
+  batch_size: 32
 
 #Optional
 transfer_training:

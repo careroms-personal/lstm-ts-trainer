@@ -34,9 +34,9 @@ class Normalizer:
     combined_df = pd.concat(dfs, ignore_index=True)
     combined_df = combined_df.sort_values(timestamp_col).reset_index(drop=True)
 
-    combined_df[value_col] = combined_df[value_col] / self.training_config.training_config.prediction_boundary.ceiling_value
+    combined_df[value_col] = combined_df[value_col] / self.training_config.prediction_boundary.ceiling_value
     
     return combined_df
     
-  def executor(self) -> pd.DataFrame:
+  def execute(self) -> pd.DataFrame:
     return self._normalize_data()

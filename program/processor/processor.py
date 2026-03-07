@@ -32,7 +32,7 @@ class Processor:
 
   def execute(self):
     self.normalizer = Normalizer(self.lstm_ts_training_config)
-    self.normalized_data = self.normalizer.executor()
+    self.normalized_data = self.normalizer.execute()
 
-    self.training_executor = TrainingExecutor(self.lstm_ts_training_config)
+    self.training_executor = TrainingExecutor(self.normalized_data, self.lstm_ts_training_config)
     self.training_executor.execute()

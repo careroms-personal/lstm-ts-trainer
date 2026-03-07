@@ -16,17 +16,12 @@ class PredictionBoundary(BaseModel):
   floor_value: float = 0.0
   ceiling_value: float = 0.0
 
-class TrainingConfig(BaseModel):
+class LSTMConfig(BaseModel):
   windows_size: int = 24
-  prediction_boundary: PredictionBoundary
-
-  @model_validator(mode='after')
-  def validate_boundary(self):
-    if self.prediction_boundary.ceiling_value <= self.prediction_boundary.floor_value:
-        raise ValueError("ceiling_value must be greater than floor_value")
-    if self.prediction_boundary.ceiling_value == 0.0:
-        raise ValueError("ceiling_value cannot be zero")
-    return self
+  units: List[int] = [64, 32]
+  dropout: float = 0.2
+  epochs: int = 50
+  batch_size: int = 32
 
 class TransferTraining(BaseModel):
   base_dir: str
@@ -37,5 +32,14 @@ class LSTMTsTrainingConfig(BaseModel):
   model_name: str
   model_export_dir: str
   dataset_config: DataSetConfig
-  training_config: TrainingConfig
+  prediction_boundary: PredictionBoundary
+  lstm_config: LSTMConfig
   transfer_training: Optional[TransferTraining] = None
+
+  @model_validator(mode='after')
+  def validate_boundary(self):
+    if self.prediction_boundary.ceiling_value <= self.prediction_boundary.floor_value:
+        raise ValueError("ceiling_value must be greater than floor_value")
+    if self.prediction_boundary.ceiling_value == 0.0:
+        raise ValueError("ceiling_value cannot be zero")
+    return self
