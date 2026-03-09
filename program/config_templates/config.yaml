@@ -1,13 +1,25 @@
-prediction_type: "" # depletion | incremental
 model_name: ""
 model_export_dir: ""
 
 #config that not matching type are not being used in this training
 # "*" for all file in directory
 dataset_config:
-  dataset_dir: ""
-  dataset_files:
-    - "*" 
+  training_data:
+    dataset_dir: ""
+    dataset_files:
+      - "*" 
+
+  validation_config:
+    external_data:
+      enabled: false
+      dataset_dir: ""
+      dataset_files:
+        - "*"
+    
+    # Auto disable if external_data.enabled is true
+    internal_data:
+      split_amount: 0.2
+
   timestamp_col: "timestamp"
   value_col: "value"
 
@@ -21,6 +33,7 @@ lstm_config:
   dropout: 0.2
   epochs: 50
   batch_size: 32
+  patience: 10
 
 #Optional
 transfer_training:

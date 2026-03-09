@@ -1,14 +1,31 @@
 from pydantic import BaseModel, model_validator
-from enum import StrEnum
 from typing import Optional, List
 
-class PredictionType(StrEnum):
-  Depletion = "depletion"
-  Incremental = "incremental"
+class ExternalDataConfig(BaseModel):
+  enabled: bool = False
+  dataset_dir: str = ""
+  dataset_files: List[str] = ["*"]
 
-class DataSetConfig(BaseModel):
+class InternalDataConfig(BaseModel):
+  split_amount: float = 0.2
+
+class ValidationConfig(BaseModel):
+  external_data: ExternalDataConfig = ExternalDataConfig()
+  internal_data: Optional[InternalDataConfig] = InternalDataConfig()
+
+  @model_validator(mode='after')
+  def disable_internal_if_external_enabled(self):
+    if self.external_data.enabled:
+      self.internal_data = None
+    return self
+
+class TrainingDataConfig(BaseModel):
   dataset_dir: str
   dataset_files: List[str] = ["*"]
+
+class DataSetConfig(BaseModel):
+  training_data: TrainingDataConfig
+  validation_config: ValidationConfig = ValidationConfig()
   timestamp_col: str
   value_col: str
 
@@ -22,13 +39,13 @@ class LSTMConfig(BaseModel):
   dropout: float = 0.2
   epochs: int = 50
   batch_size: int = 32
+  patience: int = 10
 
 class TransferTraining(BaseModel):
   base_dir: str
   model_list: List[str] = ["*"]
 
 class LSTMTsTrainingConfig(BaseModel):
-  prediction_type: PredictionType
   model_name: str
   model_export_dir: str
   dataset_config: DataSetConfig
