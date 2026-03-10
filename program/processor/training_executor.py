@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import tensorflow as tf
+import joblib # type: ignore
 
 from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import LSTM, Dense, Dropout # type: ignore
@@ -48,6 +50,8 @@ class TrainingExecutor:
     units = self.lstm_config.units
     dropout = self.lstm_config.dropout
 
+    tf.keras.backend.set_floatx(self.lstm_config.float_type)
+
     model = Sequential([
       LSTM(units[0], return_sequences=True, input_shape=(windows_size, 1)),
       Dropout(dropout),
@@ -70,6 +74,10 @@ class TrainingExecutor:
     export_path = export_dir / f"{self.training_config.model_name}.keras"
     model.save(export_path)
     print(f"Model exported to: {export_path}")
+
+    scaler_path = export_dir / f"{self.training_config.model_name}_scaler.joblib"
+    joblib.dump(self.prepared_dataset.scaler, scaler_path)
+    print(f"Scaler exported to: {scaler_path}")
 
   def execute(self):
     X_train, X_val, y_train, y_val = self._prepare_training_data()

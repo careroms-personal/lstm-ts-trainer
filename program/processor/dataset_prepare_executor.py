@@ -4,12 +4,12 @@ from pathlib import Path
 
 from models.config_models import LSTMTsTrainingConfig
 from models.dataset_models import PreparedDataset
+from sklearn.preprocessing import MinMaxScaler # type: ignore
 
 class DatasetPrepareExecutor:
   def __init__(self, lstm_training_config: LSTMTsTrainingConfig):
     self.dataset_config = lstm_training_config.dataset_config
     self.validation_config = lstm_training_config.dataset_config.validation_config
-    self.prediction_boundary = lstm_training_config.prediction_boundary
 
   def _load_and_merge(self, dataset_dir: str, dataset_files: list[str]):
     if dataset_files[0] == "*":
@@ -34,39 +34,51 @@ class DatasetPrepareExecutor:
     combined_df = combined_df.sort_values(timestamp_col).reset_index(drop=True)
 
     return combined_df
-
+  
+  def _find_min_max_scale(self, df: pd.DataFrame):
+    self.scaler = MinMaxScaler()
+    self.scaler.fit(df[[self.dataset_config.value_col]])
   
   def _normalize(self, df: pd.DataFrame):
     new_df = df.copy()
-    new_df[self.dataset_config.value_col] = new_df[self.dataset_config.value_col] / self.prediction_boundary.ceiling_value
+
+    new_df[self.dataset_config.value_col] = self.scaler.transform(
+      new_df[[self.dataset_config.value_col]]
+    )
 
     return new_df
-
+  
   def execute(self):
     training_df = self._load_and_merge(
       self.dataset_config.training_data.dataset_dir, 
       self.dataset_config.training_data.dataset_files,
     )
 
-    normalized_training_df = self._normalize(training_df)
-
     if self.validation_config.external_data.enabled:
-      validation_df = self._load_and_merge(self.validation_config.external_data.dataset_dir, self.validation_config.external_data.dataset_files)
+      validation_df = self._load_and_merge(self.validation_config.external_data.dataset_dir, self.validation_config.external_data.dataset_files)     
 
+      combined_df = pd.concat([training_df, validation_df])
+      self._find_min_max_scale(combined_df)
+
+      normalized_training_df = self._normalize(training_df)
       normalized_validation_df = self._normalize(validation_df)
+
       split_amount = None
     else:
+      self._find_min_max_scale(training_df)
+      
+      normalized_training_df = self._normalize(training_df)
       normalized_validation_df = None
+
       split_amount = self.validation_config.internal_data.split_amount
 
     prepared_dataset = PreparedDataset(
       training_dataset=normalized_training_df,
       validation_dataset=normalized_validation_df,
       split_amount=split_amount,
-      ceiling_value=self.prediction_boundary.ceiling_value,
-      floor_value=self.prediction_boundary.floor_value,
       timestamp_col=self.dataset_config.timestamp_col,
       value_col=self.dataset_config.value_col,
+      scaler=self.scaler,
     )
 
     return prepared_dataset

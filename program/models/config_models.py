@@ -1,5 +1,5 @@
 from pydantic import BaseModel, model_validator
-from typing import Optional, List
+from typing import Optional, List, Literal
 
 class ExternalDataConfig(BaseModel):
   enabled: bool = False
@@ -29,10 +29,6 @@ class DataSetConfig(BaseModel):
   timestamp_col: str
   value_col: str
 
-class PredictionBoundary(BaseModel):
-  floor_value: float = 0.0
-  ceiling_value: float = 0.0
-
 class LSTMConfig(BaseModel):
   windows_size: int = 24
   units: List[int] = [64, 32]
@@ -40,6 +36,7 @@ class LSTMConfig(BaseModel):
   epochs: int = 50
   batch_size: int = 32
   patience: int = 10
+  float_type: Literal["float32", "float64"] = "float32"
 
 class TransferTraining(BaseModel):
   base_dir: str
@@ -49,14 +46,6 @@ class LSTMTsTrainingConfig(BaseModel):
   model_name: str
   model_export_dir: str
   dataset_config: DataSetConfig
-  prediction_boundary: PredictionBoundary
   lstm_config: LSTMConfig
   transfer_training: Optional[TransferTraining] = None
 
-  @model_validator(mode='after')
-  def validate_boundary(self):
-    if self.prediction_boundary.ceiling_value <= self.prediction_boundary.floor_value:
-        raise ValueError("ceiling_value must be greater than floor_value")
-    if self.prediction_boundary.ceiling_value == 0.0:
-        raise ValueError("ceiling_value cannot be zero")
-    return self
