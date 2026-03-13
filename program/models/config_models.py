@@ -48,4 +48,4 @@ class LSTMTsTrainingConfig(BaseModel):
   dataset_config: DataSetConfig
   lstm_config: LSTMConfig
   transfer_training: Optional[TransferTraining] = None
-
+  test_prediction: False

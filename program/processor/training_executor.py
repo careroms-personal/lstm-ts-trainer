@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import tensorflow as tf
+import tensorflow as tf # type: ignore
 import joblib # type: ignore
 
 from tensorflow.keras.models import Sequential # type: ignore
