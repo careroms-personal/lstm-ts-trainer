@@ -1,5 +1,3 @@
-import pandas as pd
-import numpy as np
 import tensorflow as tf # type: ignore
 import joblib # type: ignore
 
@@ -17,27 +15,12 @@ class TrainingExecutor:
     self.training_config = training_config
     self.lstm_config = training_config.lstm_config
     
-  def _convert_pd_to_np(self, dataset: pd.DataFrame):
-    values = dataset[self.prepared_dataset.value_col].values
-
-    X, y = [], []
-
-    for i in range(len(values) - self.lstm_config.windows_size):
-      X.append(values[i:i + self.lstm_config.windows_size])
-      y.append(values[i + self.lstm_config.windows_size])
-
-    X = np.array(X)
-    y = np.array(y)
-
-    X = X.reshape((X.shape[0], X.shape[1], 1))
-
-    return X, y
-  
   def _prepare_training_data(self):
-    X_train, y_train = self._convert_pd_to_np(self.prepared_dataset.training_dataset)
+    training_ds = self.prepared_dataset.training_ds
+    X_train, y_train = training_ds.X, training_ds.y
 
-    if self.prepared_dataset.validation_dataset is not None:
-      X_val, y_val = self._convert_pd_to_np(self.prepared_dataset.validation_dataset)
+    if self.prepared_dataset.validation_ds is not None:
+      X_val, y_val = self.prepared_dataset.validation_ds.X, self.prepared_dataset.validation_ds.y
     else:
       split = int(len(X_train) * self.prepared_dataset.split_amount)
 

@@ -20,6 +20,17 @@ dataset_config:
     internal_data:
       split_amount: 0.2
 
+  test_prediction_config:
+    enabled: false
+    output_config:
+      print_output: true
+      export_output:
+        enabled: false
+        export_dir: ""
+    dataset_dir: ""
+    dataset_files:
+      - "*"
+
   timestamp_col: "timestamp"
   value_col: "value"
 

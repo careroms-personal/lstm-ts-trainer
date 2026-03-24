@@ -23,9 +23,24 @@ class TrainingDataConfig(BaseModel):
   dataset_dir: str
   dataset_files: List[str] = ["*"]
 
+class ExportOutputConfig(BaseModel):
+  enabled: bool = False
+  export_dir: str = ""
+
+class OutputConfig(BaseModel):
+  print_output: bool = True
+  export_output: ExportOutputConfig = ExportOutputConfig()
+
+class TestPredictionConfig(BaseModel):
+  enabled: bool = False
+  output_config: OutputConfig = OutputConfig()
+  dataset_dir: str = ""
+  dataset_files: List[str] = ["*"]
+
 class DataSetConfig(BaseModel):
   training_data: TrainingDataConfig
   validation_config: ValidationConfig = ValidationConfig()
+  test_prediction_config: TestPredictionConfig = TestPredictionConfig()
   timestamp_col: str
   value_col: str
 
@@ -48,4 +63,3 @@ class LSTMTsTrainingConfig(BaseModel):
   dataset_config: DataSetConfig
   lstm_config: LSTMConfig
   transfer_training: Optional[TransferTraining] = None
-  test_prediction: False

@@ -8,6 +8,7 @@ from models.config_models import LSTMTsTrainingConfig
 
 from .dataset_prepare_executor import DatasetPrepareExecutor
 from .training_executor import TrainingExecutor
+from .test_prediction_executor import TestPredictionExecutor
 
 class Processor:
   def __init__(self, config_path: str):
@@ -55,4 +56,7 @@ class Processor:
     self.training_dataset = self.dataset_prepare_executor.execute()
 
     self.training_executor = TrainingExecutor(self.training_dataset, self.lstm_ts_training_config)
-    self.training_executor.execute()
+    model, _ = self.training_executor.execute()
+
+    self.test_prediction_executor = TestPredictionExecutor(self.training_dataset, model, self.lstm_ts_training_config)
+    self.test_prediction_executor.execute()
