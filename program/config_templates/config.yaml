@@ -1,0 +1,53 @@
+model_name: ""
+model_export_dir: ""
+
+#config that not matching type are not being used in this training
+# "*" for all file in directory
+dataset_config:
+  training_data:
+    dataset_dir: ""
+    dataset_files:
+      - "*" 
+
+  validation_config:
+    external_data:
+      enabled: false
+      dataset_dir: ""
+      dataset_files:
+        - "*"
+    
+    # Auto disable if external_data.enabled is true
+    internal_data:
+      split_amount: 0.2
+
+  test_prediction_config:
+    enabled: false
+    output_config:
+      print_output: true
+      export_output:
+        enabled: false
+        export_dir: ""
+    dataset_dir: ""
+    dataset_files:
+      - "*"
+
+  timestamp_col: "timestamp"
+  value_col: "value"
+
+lstm_config:
+  windows_size: 24
+  units: [64, 32]
+  dropout: 0.2
+  epochs: 50
+  batch_size: 32
+  patience: 10
+  float_type: "float32"
+
+#Optional
+transfer_training:
+  base_dir: ""
+  model_list:
+    - "*"
+
+#Future improvement
+#fine_tune:
